@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binary Multiplier Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins&family=Fira+Code&display=swap" rel="stylesheet">
+<style>
+  /* THEORY MODAL */
+.theory-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85); z-index: 9999;
+  align-items: center; justify-content: center; padding: 24px;
+}
+.theory-overlay.open { display: flex; }
+.theory-modal {
+  background: #161208; border: 1px solid #d4af37;
+  border-radius: 14px; max-width: 860px; width: 100%;
+  max-height: 90vh; overflow-y: auto; position: relative;
+}
+.theory-modal::-webkit-scrollbar { width: 4px; }
+.theory-modal::-webkit-scrollbar-thumb { background: #3d3418; border-radius: 2px; }
+.th-header {
+  padding: 22px 28px 18px; border-bottom: 1px solid #3d3418;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: #161208; z-index: 2;
+}
+.th-header-title {
+  font-family: 'Orbitron', sans-serif; font-size: 14px;
+  font-weight: 700; letter-spacing: 3px; color: #e8c547; text-transform: uppercase;
+}
+.th-close {
+  width: 32px; height: 32px; border: 1px solid #3d3418;
+  background: transparent; border-radius: 6px; color: #7a6830;
+  font-size: 16px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; transition: all 0.2s;
+}
+.th-close:hover { border-color: #f5a623; color: #f5a623; }
+.th-tabs {
+  display: flex; border-bottom: 1px solid #3d3418;
+  padding: 0 28px; background: #161208;
+  position: sticky; top: 67px; z-index: 2;
+}
+.th-tab {
+  padding: 14px 22px; font-family: 'Orbitron', sans-serif;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: #7a6830; cursor: pointer; border: none; background: transparent;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s;
+}
+.th-tab.active { color: #f5a623; border-bottom-color: #f5a623; }
+.th-tab:hover:not(.active) { color: #e8c547; }
+.th-body { padding: 32px 28px; }
+.th-section { display: none; }
+.th-section.active { display: block; }
+.th-hero {
+  background: rgba(245,166,35,0.06); border: 1px solid #3d3418;
+  border-left: 3px solid #f5a623; border-radius: 0 10px 10px 0;
+  padding: 20px 22px; margin-bottom: 28px;
+}
+.th-hero-label {
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: #7a6830; margin-bottom: 8px;
+}
+.th-hero-text {
+  font-size: 15px; line-height: 1.85; color: #f9e08b;
+}
+.th-h2 {
+  font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 700;
+  letter-spacing: 2px; color: #f9e08b; text-transform: uppercase;
+  margin: 26px 0 12px; display: flex; align-items: center; gap: 10px;
+}
+.th-dot { width: 7px; height: 7px; border-radius: 50%; background: #f5a623; flex-shrink: 0; }
+.th-p { font-size: 14px; line-height: 1.85; color: #c8b87a; margin-bottom: 16px; }
+.th-cards {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px;
+}
+.th-card {
+  background: #0e0c08; border: 1px solid #3d3418;
+  border-radius: 10px; padding: 18px 16px;
+}
+.th-card-label {
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: #7a6830; margin-bottom: 8px;
+}
+.th-card-title { font-size: 14px; color: #e8c547; font-weight: 600; margin-bottom: 6px; }
+.th-card-body { font-size: 13px; line-height: 1.75; color: #9a8a5a; }
+.th-steps { margin-bottom: 24px; }
+.th-step {
+  display: flex; gap: 16px; align-items: flex-start;
+  margin-bottom: 14px;
+}
+.th-step-num {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(245,166,35,0.12); border: 1px solid rgba(245,166,35,0.3);
+  font-family: 'Share Tech Mono', monospace; font-size: 12px;
+  color: #f5a623; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; margin-top: 2px;
+}
+.th-step-content { flex: 1; }
+.th-step-title { font-size: 13px; color: #f9e08b; font-weight: 600; margin-bottom: 4px; }
+.th-step-body { font-size: 13px; color: #9a8a5a; line-height: 1.7; }
+.th-example {
+  background: #0e0c08; border: 1px solid #2a2010;
+  border-radius: 8px; padding: 18px 20px; margin-bottom: 22px;
+  font-family: 'Share Tech Mono', monospace; font-size: 12px;
+  line-height: 2.1; color: #c8b87a;
+}
+.th-ex-title {
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: #7a6830; margin-bottom: 10px; font-family: 'Orbitron', sans-serif;
+}
+.th-hl { color: #f5a623; }
+.th-dim { color: #3d3418; }
+.th-divider {
+  height: 1px; background: linear-gradient(90deg, transparent, #3d3418, transparent);
+  margin: 26px 0;
+}
+.th-tag {
+  display: inline-block; padding: 4px 12px; border-radius: 20px;
+  font-size: 11px; font-family: 'Share Tech Mono', monospace;
+  border: 1px solid; letter-spacing: 1px; margin: 0 6px 8px 0;
+}
+.th-tag.c { border-color: rgba(245,166,35,0.4); color: #f5a623; background: rgba(245,166,35,0.07); }
+.th-tag.q { border-color: rgba(232,197,71,0.35); color: #e8c547; background: rgba(232,197,71,0.07); }
+.th-compare-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border: 1px solid #3d3418; border-radius: 10px;
+  overflow: hidden; margin-bottom: 24px;
+}
+.th-col { padding: 20px; }
+.th-col:first-child { border-right: 1px solid #3d3418; }
+.th-col-head {
+  font-family: 'Orbitron', sans-serif; font-size: 10px;
+  letter-spacing: 3px; color: #7a6830; text-transform: uppercase; margin-bottom: 14px;
+}
+.th-col li {
+  font-size: 13px; color: #c8b87a; line-height: 1.9;
+  list-style: none; display: flex; gap: 8px; align-items: flex-start; margin-bottom: 2px;
+}
+.th-col li::before { content: '›'; color: #f5a623; flex-shrink: 0; }
+.th-note {
+  background: rgba(245,166,35,0.04); border: 1px solid #2a2010;
+  border-radius: 8px; padding: 14px 18px; margin-bottom: 16px;
+  font-size: 13px; color: #9a8a5a; line-height: 1.75;
+}
+.th-note strong { color: #e8c547; font-weight: 600; }
+@media(max-width:600px) {
+  .th-cards { grid-template-columns: 1fr; }
+  .th-compare-grid { grid-template-columns: 1fr; }
+  .th-col:first-child { border-right: none; border-bottom: 1px solid #3d3418; }
+  .th-body { padding: 20px 16px; }
+}
+  :root {
+    --bg: #0e0c08;
+    --bg2: #161208;
+    --bg3: #1e1810;
+    --amber: #f5a623;
+    --gold: #e8c547;
+    --chrome: #d4af37;
+    --light-gold: #f9e08b;
+    --dim: #ffffff;
+    --dimmer: #ffffff;
+    --text: #ffffff;
+    --text-dim: #ffffff;
+    --white: #faf6e8;
+    --accent: #ff8c00;
+    --glow: 0 0 18px rgba(245,166,35,0.4);
+    --glow-s: 0 0 8px rgba(245,166,35,0.25);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: #ffffff;
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body, body * {
+    color: #ffffff !important;
+  }
+
+  /* grain overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  /* HEADER */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    border-bottom: 1px solid var(--dimmer);
+    position: relative; z-index: 2;
+    background: linear-gradient(180deg, rgba(30,24,16,0.9) 0%, transparent 100%);
+  }
+
+  .logo-area { display: flex; align-items: center; gap: 14px; }
+
+  .logo-icon svg { width: 38px; height: 38px; }
+
+  .logo-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15px; font-weight: 700;
+    letter-spacing: 3px; color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .logo-sub {
+    font-size: 10px; letter-spacing: 4px;
+    color: var(--dim); text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .header-badge {
+    display: flex; gap: 10px;
+  }
+
+  .badge {
+    padding: 5px 12px;
+    border: 1px solid var(--dimmer);
+    border-radius: 4px;
+    font-size: 11px; letter-spacing: 2px;
+    color: var(--dim); text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero {
+    text-align: center;
+    padding: 52px 24px 36px;
+    position: relative; z-index: 2;
+  }
+
+  .hero-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(26px, 4vw, 46px);
+    font-weight: 900;
+    color: var(--chrome);
+    letter-spacing: 2px;
+    line-height: 1.15;
+  }
+
+  .hero-title span {
+    color: var(--amber);
+  }
+
+  .hero-sub {
+    margin-top: 10px;
+    font-size: 15px; letter-spacing: 3px;
+    color: var(--dim); text-transform: uppercase;
+  }
+
+  /* INPUT SECTION */
+  .input-section {
+    position: relative; z-index: 2;
+    max-width: 760px; margin: 0 auto 40px;
+    padding: 36px 40px;
+    background: var(--bg2);
+    border: 1px solid var(--dimmer);
+    border-radius: 14px;
+  }
+
+  .input-section::before {
+    content: '';
+    position: absolute; top: 0; left: 40px; right: 40px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--amber), transparent);
+  }
+
+  .input-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .input-group { display: flex; flex-direction: column; gap: 8px; }
+
+  .input-label {
+    font-size: 11px; letter-spacing: 3px;
+    color: var(--dim); text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .input-label svg { opacity: 0.6; }
+
+  .bin-input {
+    background: var(--bg3);
+    border: 1px solid var(--dimmer);
+    border-radius: 8px;
+    padding: 13px 16px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 18px; color: var(--light-gold);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    letter-spacing: 4px;
+  }
+
+  .bin-input:focus {
+    border-color: var(--amber);
+    box-shadow: var(--glow-s);
+  }
+
+  .bin-input::placeholder { color: var(--dimmer); letter-spacing: 2px; }
+
+  /* METHOD CHOOSER */
+  .method-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; margin-bottom: 28px;
+  }
+
+  .method-label {
+    font-size: 11px; letter-spacing: 3px;
+    color: var(--dim); text-transform: uppercase;
+    margin-right: 6px;
+  }
+
+
+  .method-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 22px;
+    background: var(--bg3);
+    border: 1px solid var(--dimmer);
+    border-radius: 8px;
+    font-family:'Fira Code';
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text-dim); cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .method-btn:hover {
+    border-color: var(--amber);
+    color: var(--gold);
+  }
+
+  .method-btn.active {
+    background: linear-gradient(135deg, rgba(245,166,35,0.18), rgba(232,197,71,0.08));
+    border-color: var(--amber);
+    color: var(--gold);
+    box-shadow: var(--glow-s);
+  }
+
+  .method-btn svg { width: 16px; height: 16px; }
+
+  /* CONTROL BUTTONS */
+  .ctrl-row {
+    display: flex; gap: 12px; justify-content: center;
+  }
+
+  .btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 28px;
+    border-radius: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; border: none;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--amber), var(--chrome));
+    color: #0e0c08;
+    box-shadow: 0 4px 20px rgba(245,166,35,0.3);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 4px 32px rgba(245,166,35,0.55);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: var(--bg3);
+    border: 1px solid var(--dimmer);
+    color: var(--gold);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--amber);
+    background: rgba(245,166,35,0.08);
+  }
+
+  .btn-secondary:disabled {
+    opacity: 0.35; cursor: not-allowed;
+  }
+
+  .btn svg { width: 15px; height: 15px; }
+
+  /* DIVIDER */
+  .divider {
+    position: relative; z-index: 2;
+    max-width: 1300px; margin: 0 auto 24px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--dimmer) 30%, var(--dimmer) 70%, transparent);
+  }
+
+  /* SIMULATOR PANELS */
+  .panels {
+    position: relative; z-index: 2;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 1300px; margin: 0 auto;
+    padding: 0 32px 48px;
+  }
+
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--dimmer);
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 24px 16px;
+    border-bottom: 1px solid var(--dimmer);
+    background: linear-gradient(180deg, rgba(30,24,16,0.6), transparent);
+  }
+
+  .panel-title-row { display: flex; align-items: center; gap: 12px; }
+
+  .panel-icon {
+    width: 36px; height: 36px;
+    background: rgba(245,166,35,0.1);
+    border: 1px solid var(--dimmer);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .panel-icon svg { width: 18px; height: 18px; }
+
+  .panel-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .panel-title-sub {
+    font-size: 20px; letter-spacing: 2px;
+    color: var(--dim); text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .cycle-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 20px; letter-spacing: 1px;
+    color: var(--amber);
+    background: rgba(245,166,35,0.1);
+    border: 1px solid rgba(245,166,35,0.2);
+    padding: 4px 10px; border-radius: 20px;
+  }
+
+  .panel-body { padding: 20px 24px; }
+
+  /* REGISTERS */
+  .reg-section { margin-bottom: 18px; }
+
+  .reg-row {
+    display: flex; align-items: center;
+    gap: 12px; margin-bottom: 10px;
+  }
+
+  .reg-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px; color: var(--dim);
+    letter-spacing: 1px; width: 36px;
+  }
+
+  .reg-bits {
+    display: flex; gap: 5px; flex-wrap: wrap;
+  }
+
+  .bit-cell {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--dimmer);
+    border-radius: 5px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .bit-cell.one {
+    background: rgba(245,166,35,0.18);
+    border-color: rgba(245,166,35,0.5);
+    color: var(--light-gold);
+    box-shadow: 0 0 8px rgba(245,166,35,0.2);
+  }
+
+  .bit-cell.zero { color: var(--dimmer); }
+
+  .bit-cell.flash {
+    background: var(--amber);
+    color: #0e0c08;
+    border-color: var(--gold);
+    box-shadow: 0 0 14px rgba(245,166,35,0.6);
+    transform: scale(1.15);
+  }
+
+  .bit-cell.shift-anim {
+    transform: translateX(6px);
+  }
+
+  /* LOG */
+  .log-scroll {
+    height: 160px; overflow-y: auto;
+    border: 1px solid var(--dimmer);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.25);
+    margin-bottom: 16px;
+  }
+
+  .log-scroll::-webkit-scrollbar { width: 4px; }
+  .log-scroll::-webkit-scrollbar-track { background: transparent; }
+  .log-scroll::-webkit-scrollbar-thumb { background: var(--dimmer); border-radius: 2px; }
+
+  .log-entry {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; color: var(--text-dim);
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(61,52,24,0.3);
+    display: flex; align-items: center; gap: 8px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity:0; transform: translateY(-3px); } to { opacity:1; transform: translateY(0); } }
+
+  .log-entry .cycle-tag {
+    color: var(--amber);
+    font-size: 10px;
+    min-width: 60px;
+  }
+
+  .log-entry.add-op { color: var(--light-gold); }
+  .log-entry.shift-op { color: var(--text-dim); }
+
+  /* PARTIAL PRODUCTS */
+  .pp-section {
+    margin-bottom: 14px;
+  }
+
+  .pp-label {
+    font-size: 10px; letter-spacing: 3px;
+    color: var(--dim); text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .pp-row {
+    display: flex; gap: 4px; margin-bottom: 5px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    animation: slideIn 0.35s ease;
+  }
+
+  @keyframes slideIn { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
+
+  .pp-bit {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px;
+  }
+
+  .pp-bit.active-bit {
+    background: rgba(245,166,35,0.22);
+    color: var(--gold);
+    border: 1px solid rgba(245,166,35,0.4);
+  }
+
+  .pp-bit.zero-bit { color: var(--dimmer); }
+
+  /* QUANTUM PANEL */
+  .qubit-grid {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    justify-content: center;
+    padding: 14px 0;
+    margin-bottom: 14px;
+  }
+
+  .qubit-sphere {
+    position: relative;
+    width: 60px; height: 60px;
+    animation: spherePop 0.4s ease;
+  }
+
+  @keyframes spherePop {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+
+  .qubit-sphere svg { width: 60px; height: 60px; }
+
+  .qubit-label {
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--dim);
+    margin-top: 3px;
+    letter-spacing: 1px;
+  }
+
+  .qubit-sphere.active .qubit-label { color: var(--gold); }
+
+  /* RESULT */
+  .result-bar {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: rgba(245,166,35,0.07);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-radius: 8px;
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .result-bar.show { display: block; }
+
+  .result-label {
+    font-size: 10px; letter-spacing: 3px;
+    color: var(--dim); text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .result-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 22px; color: var(--gold);
+    letter-spacing: 6px;
+  }
+
+  .result-decimal {
+    font-size: 11px; color: var(--dim); margin-top: 4px;
+    letter-spacing: 2px;
+  }
+
+  /* COMPARE BUTTON */
+  .compare-wrap {
+    position: relative; z-index: 2;
+    text-align: center;
+    padding: 24px 32px 60px;
+    display: none;
+  }
+
+  .compare-wrap.show { display: block; animation: fadeIn 0.6s ease; }
+
+  .btn-compare {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 16px 48px;
+    background: linear-gradient(135deg, var(--accent), var(--amber), var(--chrome));
+    color: #0e0c08;
+    border: none; border-radius: 10px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px; font-weight: 900;
+    letter-spacing: 3px; text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 6px 32px rgba(245,166,35,0.4);
+    transition: all 0.25s;
+    text-decoration: none;
+  }
+
+  .btn-compare:hover {
+    box-shadow: 0 8px 48px rgba(245,166,35,0.65);
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  .btn-compare svg { width: 18px; height: 18px; }
+
+  /* PANEL ACTIVE STATES */
+  .panel.active-classical { border-color: rgba(245,166,35,0.35); }
+  .panel.active-quantum   { border-color: rgba(232,197,71,0.35); }
+
+  .panel.active-classical::before,
+  .panel.active-quantum::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--amber), transparent);
+  }
+
+  /* STEP COUNTER */
+  .step-counter {
+    position: absolute; top: 18px; right: 24px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; color: var(--amber);
+  }
+
+  /* IDLE STATE MESSAGE */
+  .idle-msg {
+    text-align: center; padding: 40px 20px;
+    color: var(--dimmer);
+    font-size: 13px; letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .idle-msg svg { opacity: 0.25; margin-bottom: 12px; display: block; margin: 0 auto 12px; }
+
+  /* HORIZONTAL RULE IN PANEL */
+  .panel-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--dimmer), transparent);
+    margin: 14px 0;
+  }
+
+  /* BLOCH SPHERE SVG */
+  .bloch-wrapper {
+    position: relative; width: 60px; height: 60px;
+  }
+
+  /* PULSE ANIMATION */
+  @keyframes pulse-glow {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(245,166,35,0.4)); }
+    50%       { filter: drop-shadow(0 0 12px rgba(245,166,35,0.8)); }
+  }
+
+  .qubit-sphere.active svg { animation: pulse-glow 1.4s ease infinite; }
+
+  /* SUPERPOSITION RING */
+  @keyframes spin-ring {
+    from { transform: rotateY(0deg); }
+    to   { transform: rotateY(360deg); }
+  }
+
+  /* RESPONSIVE */
+  @media(max-width: 900px) {
+    .panels { grid-template-columns: 1fr; }
+    header { padding: 14px 20px; }
+    .input-section { margin: 0 16px 36px; padding: 24px 20px; }
+    .input-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+ <a href="signed_sim_qt.html" class="badge" 
+  style="background:linear-gradient(135deg,#f5a623,#d4af37); cursor:pointer; border:none; color:#0e0c08 !important; display:flex; align-items:center; gap:8px; font-family:'Orbitron',sans-serif; letter-spacing:3px; font-size:13px; font-weight:700; padding:10px 22px; border-radius:8px; text-transform:uppercase;">
+  <svg viewBox="0 0 15 15" fill="none" width="14" height="14">
+    <circle cx="7.5" cy="7.5" r="6.5" stroke="#0e0c08" stroke-width="1.5"/>
+    <line x1="7.5" y1="6" x2="7.5" y2="11" stroke="#0e0c08" stroke-width="1.8"/>
+    <circle cx="7.5" cy="4" r="1" fill="#0e0c08"/>
+  </svg> 
+  SIGNED INTEGER MODE
+</a>
+  <div class="logo-area">
+    <div class="logo-icon">
+      <!-- Circuit icon -->
+      
+        <rect x="1" y="1" width="36" height="36" rx="8" stroke="#d4af37" stroke-width="1.2" fill="none"/>
+        <circle cx="10" cy="10" r="3" fill="#f5a623"/>
+        <circle cx="28" cy="10" r="3" fill="#f5a623"/>
+        <circle cx="10" cy="28" r="3" fill="#f5a623"/>
+        <circle cx="28" cy="28" r="3" fill="#f5a623"/>
+        <circle cx="19" cy="19" r="4" fill="none" stroke="#d4af37" stroke-width="1.5"/>
+        <line x1="13" y1="10" x2="25" y2="10" stroke="#d4af37" stroke-width="1"/>
+        <line x1="10" y1="13" x2="10" y2="25" stroke="#d4af37" stroke-width="1"/>
+        <line x1="28" y1="13" x2="28" y2="25" stroke="#d4af37" stroke-width="1"/>
+        <line x1="13" y1="28" x2="25" y2="28" stroke="#d4af37" stroke-width="1"/>
+        <line x1="15" y1="19" x2="23" y2="19" stroke="#f5a623" stroke-width="1.2"/>
+        <line x1="19" y1="15" x2="19" y2="23" stroke="#f5a623" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <div>
+      
+      
+    </div>
+  </div>
+  
+  <div class="header-badge">
+  <button
+  onclick="document.getElementById('theoryOverlay').classList.add('open')"
+  style="background:linear-gradient(135deg,#f5a623,#d4af37); cursor:pointer; border:none; color:#0e0c08 !important; display:flex; align-items:center; gap:8px; font-family:'Orbitron',sans-serif; letter-spacing:3px; font-size:13px; font-weight:700; padding:10px 22px; border-radius:8px; text-transform:uppercase;">
+  <svg viewBox="0 0 15 15" fill="none" width="14" height="14">
+    <circle cx="7.5" cy="7.5" r="6.5" stroke="#0e0c08" stroke-width="1.5"/>
+    <line x1="7.5" y1="6" x2="7.5" y2="11" stroke="#0e0c08" stroke-width="1.8"/>
+    <circle cx="7.5" cy="4" r="1" fill="#0e0c08"/>
+  </svg>
+  Theory
+</button>
+</div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-title">Binary <span>Multiplier</span> Simulator</div>
+  <div class="hero-sub">Shift-Add Classical &nbsp;|&nbsp; Quantum Parallel Model</div>
+</div>
+
+<!-- INPUT SECTION -->
+<div class="input-section">
+  <div class="input-row">
+    <div class="input-group">
+      <label class="input-label">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <rect x="1" y="1" width="11" height="11" rx="2" stroke="#7a6830" stroke-width="1.2"/>
+          <line x1="4" y1="4" x2="9" y2="4" stroke="#7a6830" stroke-width="1.2"/>
+          <line x1="4" y1="6.5" x2="9" y2="6.5" stroke="#7a6830" stroke-width="1.2"/>
+          <line x1="4" y1="9" x2="7" y2="9" stroke="#7a6830" stroke-width="1.2"/>
+        </svg>
+        Operand A &mdash; Binary
+      </label>
+      <input id="inputA" class="bin-input" placeholder="e.g. 1101" maxlength="12" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="input-group">
+      <label class="input-label">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <rect x="1" y="1" width="11" height="11" rx="2" stroke="#7a6830" stroke-width="1.2"/>
+          <line x1="4" y1="4" x2="9" y2="4" stroke="#7a6830" stroke-width="1.2"/>
+          <line x1="4" y1="6.5" x2="9" y2="6.5" stroke="#7a6830" stroke-width="1.2"/>
+          <line x1="4" y1="9" x2="7" y2="9" stroke="#7a6830" stroke-width="1.2"/>
+        </svg>
+        Operand B &mdash; Binary
+      </label>
+      <input id="inputB" class="bin-input" placeholder="e.g. 1010" maxlength="12" autocomplete="off" spellcheck="false">
+    </div>
+  </div>
+
+  <div class="method-row">
+    <span class="method-label">Method</span>
+    <button class="method-btn active" id="btnClassical" onclick="selectMethod('classical')">
+      <svg viewBox="0 0 16 16" fill="none">
+        <rect x="1" y="4" width="14" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/>
+        <line x1="4" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1"/>
+        <line x1="4" y1="9.5" x2="9" y2="9.5" stroke="currentColor" stroke-width="1"/>
+      </svg>
+      Classical
+    </button>
+    <button class="method-btn" id="btnQuantum" onclick="selectMethod('quantum')">
+      <svg viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/>
+        <ellipse cx="8" cy="8" rx="6" ry="2.5" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2"/>
+        <line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1"/>
+        <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
+      </svg>
+      Quantum
+    </button>
+    <button class="method-btn" id="btnBoth" onclick="selectMethod('both')">
+      <svg viewBox="0 0 16 16" fill="none">
+        <rect x="1" y="3" width="6" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+        <rect x="9" y="3" width="6" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="7" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.2"/>
+      </svg>
+      Both
+    </button>
+  </div>
+
+  <div class="ctrl-row">
+    <button class="btn btn-primary" onclick="startSim()">
+      <svg viewBox="0 0 15 15" fill="none">
+        <polygon points="3,2 13,7.5 3,13" fill="currentColor"/>
+      </svg>
+      Initialize
+    </button>
+    <button class="btn btn-secondary" id="btnStep" onclick="doStep()" disabled>
+      <svg viewBox="0 0 15 15" fill="none">
+        <polygon points="2,2 10,7.5 2,13" fill="currentColor"/>
+        <line x1="12" y1="2" x2="12" y2="13" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      Step
+    </button>
+    <button class="btn btn-secondary" id="btnAuto" onclick="doAuto()" disabled>
+      <svg viewBox="0 0 15 15" fill="none">
+        <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.3"/>
+        <polygon points="5.5,5 10.5,7.5 5.5,10" fill="currentColor"/>
+      </svg>
+      Auto
+    </button>
+    <button class="btn btn-secondary" id="btnReset" onclick="resetSim()">
+      <svg viewBox="0 0 15 15" fill="none">
+        <path d="M13 7.5A5.5 5.5 0 1 1 7.5 2" stroke="currentColor" stroke-width="1.3" fill="none"/>
+        <polygon points="7,1 10,4 7,5" fill="currentColor"/>
+      </svg>
+      Reset
+    </button>
+  </div>
+</div>
+
+<!-- PANELS -->
+<div class="panels" id="panelsWrap">
+
+  <!-- CLASSICAL PANEL -->
+  <div class="panel" id="classPanel">
+    <div class="panel-header">
+      <div class="panel-title-row">
+        <div class="panel-icon">
+          <svg viewBox="0 0 18 18" fill="none">
+            <rect x="2" y="5" width="14" height="9" rx="2" stroke="#f5a623" stroke-width="1.3"/>
+            <line x1="5" y1="8" x2="13" y2="8" stroke="#f5a623" stroke-width="1"/>
+            <line x1="5" y1="10.5" x2="10" y2="10.5" stroke="#f5a623" stroke-width="1"/>
+            <rect x="6" y="2" width="6" height="3" rx="1" stroke="#d4af37" stroke-width="1"/>
+          </svg>
+        </div>
+        <div>
+          <div class="panel-title">Classical</div>
+          <div class="panel-title-sub">Shift-Add Algorithm</div>
+        </div>
+      </div>
+      <div class="cycle-badge" id="classCycleBadge">Cycles: 0</div>
+    </div>
+
+    <div class="panel-body">
+      <div id="classContent">
+        <div class="idle-msg">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect x="4" y="8" width="24" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="10" y1="13" x2="22" y2="13" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="10" y1="16.5" x2="18" y2="16.5" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          Initialize to begin
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUANTUM PANEL -->
+  <div class="panel" id="quantPanel">
+    <div class="panel-header">
+      <div class="panel-title-row">
+        <div class="panel-icon">
+          <svg viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="6.5" stroke="#d4af37" stroke-width="1.3"/>
+            <ellipse cx="9" cy="9" rx="6.5" ry="2.8" stroke="#d4af37" stroke-width="1" stroke-dasharray="2 1.5"/>
+            <line x1="9" y1="2.5" x2="9" y2="15.5" stroke="#f5a623" stroke-width="1"/>
+            <circle cx="9" cy="9" r="1.8" fill="#f5a623"/>
+          </svg>
+        </div>
+        <div>
+          <div class="panel-title">Quantum</div>
+          <div class="panel-title-sub">Parallel Bloch Model</div>
+        </div>
+      </div>
+      <div class="cycle-badge" id="quantCycleBadge">Cycles: 2</div>
+    </div>
+
+    <div class="panel-body">
+      <div id="quantContent">
+        <div class="idle-msg">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="12" stroke="currentColor" stroke-width="1.5"/>
+            <ellipse cx="16" cy="16" rx="12" ry="5" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2"/>
+            <line x1="16" y1="4" x2="16" y2="28" stroke="currentColor" stroke-width="1"/>
+            <circle cx="16" cy="16" r="3" fill="currentColor"/>
+          </svg>
+          Initialize to begin
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- COMPARE BUTTON -->
+<div class="compare-wrap" id="compareWrap">
+  <a href="performance_qt.html" id="compareBtn" class="btn-compare" target="_blank">
+    <svg viewBox="0 0 18 18" fill="none">
+      <polyline points="2,14 6,9 10,11 16,4" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
+      <circle cx="6" cy="9" r="1.5" fill="currentColor"/>
+      <circle cx="10" cy="11" r="1.5" fill="currentColor"/>
+    </svg>
+    Compare Performance
+  </a>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let method = 'classical';
+let M, Q, ACC, step, origM, origQ, totalBits;
+let autoInterval = null;
+let classicalDone = false;
+let quantumDone   = false;
+let partialProducts = [];
+
+// ─── METHOD SELECTION ────────────────────────────────────────────────────────
+function selectMethod(m) {
+  method = m;
+  document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+  const map = { classical: 'btnClassical', quantum: 'btnQuantum', both: 'btnBoth' };
+  document.getElementById(map[m]).classList.add('active');
+  // show/hide panels
+  const cp = document.getElementById('classPanel');
+  const qp = document.getElementById('quantPanel');
+  if (m === 'classical') {
+    cp.style.display = ''; qp.style.display = 'none';
+  } else if (m === 'quantum') {
+    cp.style.display = 'none'; qp.style.display = '';
+  } else {
+    cp.style.display = ''; qp.style.display = '';
+  }
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function bitsHTML(numStr, flash = false) {
+  return numStr.split('').map(b => {
+    const cls = flash ? 'bit-cell flash' : (b === '1' ? 'bit-cell one' : 'bit-cell zero');
+    return `<span class="${cls}">${b}</span>`;
+  }).join('');
+}
+
+function padBin(n, len) {
+  return n.toString(2).padStart(len, '0');
+}
+
+function renderRegisters() {
+  const maxLen = Math.max(M.toString(2).length, Q.toString(2).length, ACC.toString(2).length, totalBits + 2);
+  return `
+  <div class="reg-section">
+    <div class="reg-row">
+      <span class="reg-name">M</span>
+      <div class="reg-bits" id="regM">${bitsHTML(padBin(M, maxLen))}</div>
+    </div>
+    <div class="reg-row">
+      <span class="reg-name">Q</span>
+      <div class="reg-bits" id="regQ">${bitsHTML(padBin(Q, maxLen))}</div>
+    </div>
+    <div class="reg-row">
+      <span class="reg-name">ACC</span>
+      <div class="reg-bits" id="regACC">${bitsHTML(padBin(ACC, maxLen))}</div>
+    </div>
+  </div>`;
+}
+
+function ppBitsHTML(binary, isActive) {
+  return binary.split('').map(b => {
+    const cls = b === '1' && isActive ? 'pp-bit active-bit' : 'pp-bit zero-bit';
+    return `<span class="${cls}">${b}</span>`;
+  }).join('');
+}
+
+// ─── START ────────────────────────────────────────────────────────────────────
+function startSim() {
+  const A = document.getElementById('inputA').value.trim();
+  const B = document.getElementById('inputB').value.trim();
+  if (!/^[01]+$/.test(A) || !/^[01]+$/.test(B)) {
+    alert('Please enter valid binary values (0s and 1s only).');
+    return;
+  }
+  origM = parseInt(A, 2);
+  origQ = parseInt(B, 2);
+  M = origM; Q = origQ; ACC = 0; step = 0;
+  totalBits = B.length;
+  partialProducts = [];
+  classicalDone = false; quantumDone = false;
+  clearInterval(autoInterval); autoInterval = null;
+
+  document.getElementById('compareWrap').classList.remove('show');
+  document.getElementById('classCycleBadge').textContent = 'Cycles: 0';
+  document.getElementById('quantCycleBadge').textContent = 'Cycles: 2';
+
+  document.getElementById('btnStep').disabled = false;
+  document.getElementById('btnAuto').disabled = false;
+
+  if (method === 'classical' || method === 'both') {
+    renderClassicalPanel();
+    document.getElementById('classPanel').classList.add('active-classical');
+  }
+  if (method === 'quantum' || method === 'both') {
+    renderQuantumPanel(false);
+    document.getElementById('quantPanel').classList.add('active-quantum');
+  }
+
+  // Store for performance page
+  localStorage.setItem('binsim_A', A);
+  localStorage.setItem('binsim_B', B);
+  localStorage.setItem('binsim_totalBits', totalBits);
+}
+
+// ─── CLASSICAL ───────────────────────────────────────────────────────────────
+function renderClassicalPanel(logLines = [], pps = []) {
+  const container = document.getElementById('classContent');
+  container.innerHTML = `
+    ${renderRegisters()}
+    <div class="panel-divider"></div>
+    <div class="log-scroll" id="classLog">
+      ${logLines.map(l =>
+        `<div class="log-entry ${l.op === 'ADD' ? 'add-op' : 'shift-op'}">
+          <span class="cycle-tag">Cycle ${l.cycle}</span>
+          <span>${l.op === 'ADD'
+            ? '<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="5" y1="1" x2="5" y2="9" stroke="#f9e08b" stroke-width="1.5"/><line x1="1" y1="5" x2="9" y2="5" stroke="#f9e08b" stroke-width="1.5"/></svg>'
+            : '<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="2,5 8,5 6,3" stroke="#7a6830" stroke-width="1.3" fill="none"/></svg>'
+          } ${l.op} M=${l.mval}</span>
+        </div>`
+      ).join('')}
+    </div>
+    <div class="pp-label">Partial Products</div>
+    <div id="classPP">
+      ${pps.map(p =>
+        `<div class="pp-row">${ppBitsHTML(p, true)}</div>`
+      ).join('')}
+    </div>
+  `;
+  const logEl = document.getElementById('classLog');
+  if (logEl) logEl.scrollTop = logEl.scrollHeight;
+}
+
+let classLog = [];
+
+function doClassicalStep() {
+  if (Q === 0) {
+    classicalDone = true;
+    document.getElementById('classCycleBadge').textContent = `Cycles: ${step}`;
+    showResultClassical();
+    checkBothDone();
+    return false;
+  }
+
+  const lsb = Q & 1;
+  step++;
+  const logEntry = { cycle: step, op: lsb === 1 ? 'ADD' : 'SHIFT', mval: M.toString(2) };
+  classLog.push(logEntry);
+
+  if (lsb === 1) {
+    ACC += M;
+    const pp = M.toString(2) + '0'.repeat(step - 1);
+    partialProducts.push(pp);
+    flashACCBits();
+  }
+
+  document.getElementById('classCycleBadge').textContent = `Cycles: ${step}`;
+  renderClassicalPanel(classLog, partialProducts);
+
+  setTimeout(() => {
+    M <<= 1; Q >>= 1;
+    renderClassicalPanel(classLog, partialProducts);
+    animateShiftBits('regM');
+  }, 350);
+
+  return true;
+}
+
+function flashACCBits() {
+  setTimeout(() => {
+    const accEl = document.getElementById('regACC');
+    if (accEl) {
+      accEl.querySelectorAll('.bit-cell').forEach(b => {
+        b.classList.add('flash');
+        setTimeout(() => b.classList.remove('flash'), 400);
+      });
+    }
+  }, 50);
+}
+
+function animateShiftBits(regId) {
+  const el = document.getElementById(regId);
+  if (!el) return;
+  el.querySelectorAll('.bit-cell').forEach(b => {
+    b.classList.add('shift-anim');
+    setTimeout(() => b.classList.remove('shift-anim'), 300);
+  });
+}
+
+function showResultClassical() {
+  const body = document.getElementById('classContent');
+  let resultDiv = document.getElementById('classResult');
+  if (!resultDiv) {
+    const r = document.createElement('div');
+    r.id = 'classResult';
+    r.className = 'result-bar show';
+    r.innerHTML = `
+      <div class="result-label">Final Product</div>
+      <div class="result-value">${ACC.toString(2)}</div>
+      <div class="result-decimal">Decimal: ${ACC}</div>
+    `;
+    body.appendChild(r);
+  }
+}
+
+// ─── QUANTUM ─────────────────────────────────────────────────────────────────
+function renderQuantumPanel(showResult) {
+  const A = parseInt(document.getElementById('inputA').value, 2);
+  const B = document.getElementById('inputB').value.split('').reverse();
+  const container = document.getElementById('quantContent');
+
+  let qubitsHTML = '<div class="qubit-grid">';
+  let ppHTML = '';
+  let logHTML = '';
+
+  B.forEach((bit, i) => {
+    const isActive = bit === '1';
+    qubitsHTML += renderBlochSphere(i, isActive);
+    logHTML += `<div class="log-entry ${isActive ? 'add-op' : 'shift-op'}">
+      <span class="cycle-tag">q[${i}]</span>
+      <span>${isActive
+        ? '<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#f9e08b" stroke-width="1.3"/><line x1="5" y1="2" x2="5" y2="8" stroke="#f9e08b" stroke-width="1.3"/><line x1="2" y1="5" x2="8" y2="5" stroke="#f9e08b" stroke-width="1.3"/></svg> Superposition Active — contributing'
+        : '<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#3d3418" stroke-width="1.3"/></svg> Qubit Idle'
+      }</span>
+    </div>`;
+    if (isActive) {
+      const pp = A.toString(2) + '0'.repeat(i);
+      ppHTML += `<div class="pp-row">${ppBitsHTML(pp, true)}</div>`;
+    }
+  });
+  qubitsHTML += '</div>';
+
+  const result = A * parseInt(document.getElementById('inputB').value, 2);
+  const resultHTML = showResult ? `
+    <div class="result-bar show">
+      <div class="result-label">Measured Output</div>
+      <div class="result-value">${result.toString(2)}</div>
+      <div class="result-decimal">Decimal: ${result}</div>
+    </div>` : '';
+
+  container.innerHTML = `
+    <div class="pp-label">Bloch Sphere Register</div>
+    ${qubitsHTML}
+    <div class="panel-divider"></div>
+    <div class="log-scroll">${logHTML}</div>
+    <div class="pp-label" style="margin-top:12px">Parallel Partial Products</div>
+    <div>${ppHTML}</div>
+    ${resultHTML}
+  `;
+  quantumDone = showResult;
+}
+
+function renderBlochSphere(idx, active) {
+  const gColor   = active ? '#f5a623' : '#3d3418';
+  const eColor   = active ? '#d4af37' : '#2a2010';
+  const pColor   = active ? '#f9e08b' : '#2a2010';
+  const bgFill   = active ? 'rgba(245,166,35,0.10)' : 'rgba(20,16,8,0.7)';
+  const stateY   = active ? 22 : 38; // arrow up = active, down = idle
+  const stateX   = 30;
+
+  return `
+  <div class="qubit-sphere ${active ? 'active' : ''}">
+    <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+      <!-- Outer sphere -->
+      <circle cx="30" cy="30" r="26" fill="${bgFill}" stroke="${gColor}" stroke-width="1.3"/>
+      <!-- Latitude ring -->
+      <ellipse cx="30" cy="30" rx="26" ry="8" fill="none" stroke="${eColor}" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.7"/>
+      <!-- Longitude vertical arc -->
+      <path d="M30 4 Q44 30 30 56" fill="none" stroke="${eColor}" stroke-width="0.7" opacity="0.5"/>
+      <path d="M30 4 Q16 30 30 56" fill="none" stroke="${eColor}" stroke-width="0.7" opacity="0.5"/>
+      <!-- Axes -->
+      <line x1="30" y1="6" x2="30" y2="54" stroke="${gColor}" stroke-width="0.8" opacity="0.5"/>
+      <line x1="4" y1="30" x2="56" y2="30" stroke="${gColor}" stroke-width="0.8" opacity="0.5"/>
+      <!-- Center point -->
+      <circle cx="30" cy="30" r="2" fill="${pColor}" opacity="0.6"/>
+      <!-- State arrow -->
+      <line x1="30" y1="30" x2="${stateX}" y2="${stateY}" stroke="${pColor}" stroke-width="1.8"/>
+      <circle cx="${stateX}" cy="${stateY}" r="2.5" fill="${pColor}"/>
+      <!-- |0> / |1> label -->
+      <text x="30" y="11" text-anchor="middle" font-size="5" fill="${gColor}" font-family="monospace" opacity="0.8">${active ? '|1⟩' : '|0⟩'}</text>
+      <text x="30" y="53" text-anchor="middle" font-size="5" fill="${gColor}" font-family="monospace" opacity="0.6">${active ? '|0⟩' : '|1⟩'}</text>
+    </svg>
+    <div class="qubit-label">q[${idx}]</div>
+  </div>`;
+}
+
+// ─── STEP / AUTO ──────────────────────────────────────────────────────────────
+function doStep() {
+  if (method === 'classical' || method === 'both') {
+    const cont = doClassicalStep();
+    if (!cont && method === 'quantum' || method === 'both') {
+      if (!quantumDone) {
+        renderQuantumPanel(true);
+        quantumDone = true;
+        checkBothDone();
+      }
+    }
+  } else if (method === 'quantum') {
+    renderQuantumPanel(true);
+    quantumDone = true;
+    checkBothDone();
+  }
+}
+
+function doAuto() {
+  clearInterval(autoInterval);
+  autoInterval = setInterval(() => {
+    if (method === 'quantum') {
+      renderQuantumPanel(true);
+      quantumDone = true;
+      checkBothDone();
+      clearInterval(autoInterval);
+      return;
+    }
+    const cont = doClassicalStep();
+    if (!cont) {
+      clearInterval(autoInterval);
+      if (method === 'both' && !quantumDone) {
+        renderQuantumPanel(true);
+        quantumDone = true;
+        checkBothDone();
+      }
+    }
+  }, 1100);
+}
+
+function resetSim() {
+  clearInterval(autoInterval);
+  M = Q = ACC = step = 0;
+  classLog = []; partialProducts = [];
+  classicalDone = false; quantumDone = false;
+  document.getElementById('classContent').innerHTML = '<div class="idle-msg"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="8" width="24" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="13" x2="22" y2="13" stroke="currentColor" stroke-width="1.2"/><line x1="10" y1="16.5" x2="18" y2="16.5" stroke="currentColor" stroke-width="1.2"/></svg>Initialize to begin</div>';
+  document.getElementById('quantContent').innerHTML = '<div class="idle-msg"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="currentColor" stroke-width="1.5"/><ellipse cx="16" cy="16" rx="12" ry="5" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2"/><line x1="16" y1="4" x2="16" y2="28" stroke="currentColor" stroke-width="1"/><circle cx="16" cy="16" r="3" fill="currentColor"/></svg>Initialize to begin</div>';
+  document.getElementById('classCycleBadge').textContent = 'Cycles: 0';
+  document.getElementById('compareWrap').classList.remove('show');
+  document.getElementById('classPanel').classList.remove('active-classical');
+  document.getElementById('quantPanel').classList.remove('active-quantum');
+  document.getElementById('btnStep').disabled = true;
+  document.getElementById('btnAuto').disabled = true;
+}
+
+function checkBothDone() {
+  const cDone = classicalDone || method === 'quantum';
+  const qDone = quantumDone  || method === 'classical';
+  if (cDone && qDone) {
+    document.getElementById('btnStep').disabled = true;
+    document.getElementById('btnAuto').disabled = true;
+    // Save perf data
+    localStorage.setItem('binsim_classSteps', step);
+    localStorage.setItem('binsim_quantSteps', 2);
+    localStorage.setItem('binsim_result', ACC.toString(2));
+    localStorage.setItem('binsim_resultDec', ACC);
+    document.getElementById('compareWrap').classList.add('show');
+  }
+}
+
+// Init panel visibility
+selectMethod('classical');
+</script>
+<!-- ═══════════════════════════════════════════════
+     THEORY MODAL
+════════════════════════════════════════════════ -->
+<div class="theory-overlay" id="theoryOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="theory-modal">
+
+    <!-- Header -->
+    <div class="th-header">
+      <div class="th-header-title">Theory — Binary Multipliers</div>
+      <button class="th-close" onclick="document.getElementById('theoryOverlay').classList.remove('open')">✕</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="th-tabs">
+      <button class="th-tab active" onclick="thTab('classical',this)">Classical</button>
+      <button class="th-tab"        onclick="thTab('quantum',this)">Quantum</button>
+      <button class="th-tab"        onclick="thTab('compare',this)">Compare</button>
+    </div>
+
+    <div class="th-body">
+
+      <!-- ══ CLASSICAL ══ -->
+      <div class="th-section active" id="th-classical">
+
+        <div class="th-hero">
+          <div class="th-hero-label">What is a Classical Binary Multiplier?</div>
+          <div class="th-hero-text">
+            A classical binary multiplier is a digital circuit or algorithm that computes the product
+            of two binary numbers using only the basic operations a CPU already performs —
+            <strong>addition</strong> and <strong>bit shifting</strong>. It is the foundation of
+            all arithmetic in modern processors, from simple microcontrollers to supercomputers.
+          </div>
+        </div>
+
+        <div class="th-h2"><span class="th-dot"></span>How binary multiplication works</div>
+        <p class="th-p">
+          Binary multiplication mirrors the long-multiplication method you learned in school, but
+          in base-2. Every digit is either 0 or 1, so each row of the multiplication table is
+          either zero or an exact copy of the multiplicand, shifted one position to the left for
+          each bit position. These shifted copies are called <em>partial products</em> and are
+          summed together to produce the final result.
+        </p>
+        <p class="th-p">
+          The shift-add algorithm automates this: it scans the multiplier bit by bit from the
+          least significant end. When it sees a 1, it adds the current shifted value of the
+          multiplicand into an accumulator register. After each bit, it shifts the multiplicand
+          left by one position and moves to the next bit of the multiplier.
+        </p>
+
+        <div class="th-h2"><span class="th-dot"></span>Step-by-step process</div>
+        <div class="th-steps">
+          <div class="th-step">
+            <div class="th-step-num">1</div>
+            <div class="th-step-content">
+              <div class="th-step-title">Load the operands</div>
+              <div class="th-step-body">Place multiplicand A into register M and multiplier B into register Q. Set accumulator ACC to zero. These three registers hold the working state for the entire computation.</div>
+            </div>
+          </div>
+          <div class="th-step">
+            <div class="th-step-num">2</div>
+            <div class="th-step-content">
+              <div class="th-step-title">Inspect the least significant bit</div>
+              <div class="th-step-body">Read the rightmost bit of Q. If it is 1, add the current value of M into ACC. If it is 0, skip the addition — this partial product is zero and contributes nothing to the result.</div>
+            </div>
+          </div>
+          <div class="th-step">
+            <div class="th-step-num">3</div>
+            <div class="th-step-content">
+              <div class="th-step-title">Shift both registers</div>
+              <div class="th-step-body">Shift M one position to the left (multiply its positional weight by 2) and shift Q one position to the right (discard the bit just processed and expose the next one). This is a single-cycle operation on any CPU.</div>
+            </div>
+          </div>
+          <div class="th-step">
+            <div class="th-step-num">4</div>
+            <div class="th-step-content">
+              <div class="th-step-title">Repeat until done</div>
+              <div class="th-step-body">Go back to step 2. The loop runs exactly n times, where n is the number of bits in B. Once Q reaches zero there are no more bits to process.</div>
+            </div>
+          </div>
+          <div class="th-step">
+            <div class="th-step-num">5</div>
+            <div class="th-step-content">
+              <div class="th-step-title">Read the result</div>
+              <div class="th-step-body">The accumulator ACC now holds the complete product of A × B. Its maximum width is 2n bits — twice the width of the inputs — so the result register must be wide enough to hold the largest possible product.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="th-h2"><span class="th-dot"></span>Worked example — 5 × 6</div>
+        <div class="th-example">
+          <div class="th-ex-title">Example</div>
+          <div>A = <span class="th-hl">0101</span> (decimal 5) &nbsp; B = <span class="th-hl">0110</span> (decimal 6)</div>
+          <div style="margin-top:10px; color:#3d3418">─────────────────────────────────</div>
+          <div>Cycle 1 → LSB = <span class="th-dim">0</span> → skip &nbsp; M = 0101<span class="th-dim">0</span></div>
+          <div>Cycle 2 → LSB = <span class="th-hl">1</span> → ACC += <span class="th-hl">01010</span> &nbsp;&nbsp; ACC = 01010</div>
+          <div>Cycle 3 → LSB = <span class="th-hl">1</span> → ACC += <span class="th-hl">010100</span> &nbsp; ACC = 011110</div>
+          <div>Cycle 4 → LSB = <span class="th-dim">0</span> → skip &nbsp; done</div>
+          <div style="margin-top:10px; border-top:1px solid #2a2010; padding-top:10px">
+            Result = <span class="th-hl">011110</span> = decimal <span class="th-hl">30</span> &nbsp; ✓ &nbsp; (5 × 6 = 30)
+          </div>
+        </div>
+
+        <div class="th-h2"><span class="th-dot"></span>Performance characteristics</div>
+        <div class="th-cards">
+          <div class="th-card">
+            <div class="th-card-label">Time complexity</div>
+            <div class="th-card-title">O(n) — Linear</div>
+            <div class="th-card-body">The number of cycles grows directly with the number of bits in B. Double the bits, double the cycles. Every bit requires one shift and at most one add.</div>
+          </div>
+          <div class="th-card">
+            <div class="th-card-label">Space complexity</div>
+            <div class="th-card-title">O(n) — Linear</div>
+            <div class="th-card-body">Three registers of width n (M, Q) and 2n (ACC) are needed. No extra memory is required — the computation is entirely in-register.</div>
+          </div>
+          <div class="th-card">
+            <div class="th-card-label">Parallelism</div>
+            <div class="th-card-title">Sequential only</div>
+            <div class="th-card-body">Each cycle depends on the previous one. You cannot start cycle 3 before cycle 2 completes. This sequential dependency is the core bottleneck of classical multiplication.</div>
+          </div>
+          <div class="th-card">
+            <div class="th-card-label">Reliability</div>
+            <div class="th-card-title">Fully deterministic</div>
+            <div class="th-card-body">Given the same inputs the output is always identical. No probability, no error rate, no need for error correction. This is what makes it the universal standard today.</div>
+          </div>
+        </div>
+
+        <div class="th-divider"></div>
+        <div class="th-note">
+          <strong>Real-world variants:</strong> The basic shift-add is the conceptual foundation. Modern processors use optimised variants — Booth's algorithm reduces partial products by up to half, and Wallace tree multipliers compute all partial products simultaneously using carry-save adders, reducing gate delay to O(log n). But all of them trace back to the same shift-and-add logic described here.
+        </div>
+        <div>
+          <span class="th-tag c">Deterministic</span>
+          <span class="th-tag c">Sequential</span>
+          <span class="th-tag c">O(n) cycles</span>
+          <span class="th-tag c">CPU / ALU</span>
+          <span class="th-tag c">No error correction needed</span>
+        </div>
+      </div>
+
+      <!-- ══ QUANTUM ══ -->
+      <div class="th-section" id="th-quantum">
+
+        <div class="th-hero">
+          <div class="th-hero-label">What is a Quantum Binary Multiplier?</div>
+          <div class="th-hero-text">
+            A quantum binary multiplier is a quantum circuit that computes the product of two
+            numbers by encoding them as qubits and exploiting <strong>superposition</strong> and
+            <strong>entanglement</strong> to evaluate all partial products at the same time,
+            rather than one at a time. It is a theoretical model that demonstrates the potential
+            of quantum computing for arithmetic at very large scales.
+          </div>
+        </div>
+
+        <div class="th-h2"><span class="th-dot"></span>Key quantum concepts</div>
+        <div class="th-cards">
+          <div class="th-card">
+            <div class="th-card-label">Concept 1</div>
+            <div class="th-card-title">Qubit</div>
+            <div class="th-card-body">Unlike a classical bit which is strictly 0 or 1, a qubit can exist in a blend of both states simultaneously. This blend is called superposition. Physically it is often a photon's polarisation, an electron's spin, or a superconducting loop's current direction.</div>
+          </div>
+          <div class="th-card">
+            <div class="th-card-label">Concept 2</div>
+            <div class="th-card-title">Superposition</div>
+            <div class="th-card-body">When a qubit is placed in superposition via a Hadamard gate, it simultaneously represents both 0 and 1. A register of n qubits in superposition can represent all 2ⁿ possible values at once, allowing a single circuit pass to explore every combination in parallel.</div>
+          </div>
+          <div class="th-card">
+            <div class="th-card-label">Concept 3</div>
+            <div class="th-card-title">Entanglement</div>
+            <div class="th-card-body">Two qubits can be entangled so that measuring one instantly determines the state of the other, regardless of distance. In a multiplier circuit, entanglement links the input qubits to the output register, encoding the product relationship into the quantum state itself.</div>
+          </div>
+          <div class="th-card">
+            <div class="th-card-label">Concept 4</div>
+            <div class="th-card-title">Measurement</div>
+            <div class="th-card-body">Reading a qubit collapses its superposition to a definite 0 or 1. The circuit is designed so that when measurement happens, the probability of reading each output bit is overwhelmingly biased toward the correct product. This is quantum interference doing useful work.</div>
+          </div>
+        </div>
+
+        <div class="th-h2"><span class="th-dot"></span>How the quantum multiplier works</div>
+        <p class="th-p">
+          The quantum multiplier encodes the two operands A and B into two qubit registers. The
+          B register is then put into superposition using Hadamard gates, making each qubit of B
+          simultaneously 0 and 1. Controlled phase gates then entangle each qubit of B with a
+          shifted copy of A — this is equivalent to computing every partial product simultaneously.
+          A quantum Fourier transform then combines the phases so that when the output register is
+          measured, it collapses to the binary representation of the product A × B.
+        </p>
+        <p class="th-p">
+          The critical insight is that the circuit does not iterate — it evaluates all
+          2ⁿ multiplication paths through quantum interference in parallel, completing in a
+          constant number of circuit layers regardless of input size.
+        </p>
+
+        <div class="th-h2"><span class="th-dot"></span>Circuit phases</div>
+        <div class="th-steps">
+          <div class="th-step">
+            <div class="th-step-num">1</div>
+            <div class="th-step-content">
+              <div class="th-step-title">Initialisation — encode the inputs</div>
+              <div class="th-step-body">Load A and B as classical binary values into two separate qubit registers. At this stage the qubits are in definite states (|0⟩ or |1⟩) — no superposition yet. This corresponds to the "Init" phase shown in the simulator.</div>
+            </div>
+          </div>
+          <div class="th-step">
+            <div class="th-step-num">2</div>
+            <div class="th-step-content">
+              <div class="th-step-title">Superposition — apply Hadamard gates</div>
+              <div class="th-step-body">Each qubit of the B register is passed through a Hadamard (H) gate, placing it into an equal superposition of |0⟩ and |1⟩. The register now simultaneously represents every possible bit pattern of B — all partial product conditions exist at once.</div>
+            </div>
+          </div>
+          <div class="th-step">
+            <div class="th-step-num">3</div>
+            <div class="th-step-content">
+              <div class="th-step-title">Entanglement — controlled gates</div>
+              <div class="th-step-body">Controlled-phase (CPHASE) or Toffoli gates link each B qubit to a shifted version of the A register. This writes the multiplication relationship — every partial product — into the phase of the quantum state without collapsing the superposition.</div>
+            </div>
+          </div>
+          <div class="th-step">
+            <div class="th-step-num">4</div>
+            <div class="th-step-content">
+              <div class="th-step-title">Interference — Quantum Fourier Transform</div>
+              <div class="th-step-body">A QFT is applied to the output register. Probability amplitudes of wrong answers cancel out through destructive interference while the amplitude of the correct product is reinforced through constructive interference — this is how the circuit "chooses" the right answer.</div>
+            </div>
+          </div>
+          <div class="th-step">
+            <div class="th-step-num">5</div>
+            <div class="th-step-content">
+              <div class="th-step-title">Measurement — read the result</div>
+              <div class="th-step-body">Measuring the output register collapses the quantum state to the product A × B with very high probability. This is the only step the outside world sees — the entire parallel computation happened invisibly inside the quantum state. In the simulator this is shown as "Cycle 2".</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="th-h2"><span class="th-dot"></span>Performance characteristics</div>
+        <div class="th-cards">
+          <div class="th-card">
+            <div class="th-card-label">Circuit depth</div>
+            <div class="th-card-title">O(log n)</div>
+            <div class="th-card-body">The number of gate layers grows logarithmically. Doubling the input size adds only one extra layer, not double the work. This is the fundamental advantage over classical O(n) multiplication.</div>
+          </div>
+          <div class="th-card">
+            <div class="th-card-label">Parallelism</div>
+            <div class="th-card-title">Full superposition</div>
+            <div class="th-card-body">All 2ⁿ partial product computations happen simultaneously inside the quantum state. No sequential loop exists. The circuit depth is determined by the longest chain of dependent gates, not the number of bits.</div>
+          </div>
+          <div class="th-card">
+            <div class="th-card-label">Output type</div>
+            <div class="th-card-title">Probabilistic</div>
+            <div class="th-card-body">The result is correct with high probability, not certainty. Error correction codes and repeated measurement are used to boost confidence. Current NISQ hardware introduces additional noise that reduces this probability.</div>
+          </div>
+          <div class="th-card">
+            <div class="th-card-label">Hardware requirement</div>
+            <div class="th-card-title">QPU — Quantum Processor</div>
+            <div class="th-card-body">Requires a quantum processing unit with low decoherence times, high gate fidelity, and qubit connectivity matching the circuit topology. No classical computer can run a true quantum multiplier — only simulate it exponentially slowly.</div>
+          </div>
+        </div>
+
+        <div class="th-divider"></div>
+        <div class="th-note">
+          <strong>Important caveat:</strong> The "2 cycles" shown in this simulator is a pedagogical simplification of the two logical phases — initialisation and measurement. A real quantum multiplier for two 4-bit numbers would require dozens of physical gate operations and tens of physical qubits after accounting for error correction overhead. Quantum advantage over classical multipliers is not yet practical on today's hardware — it is a near-future milestone, not a present reality.
+        </div>
+        <div>
+          <span class="th-tag q">Probabilistic</span>
+          <span class="th-tag q">Parallel superposition</span>
+          <span class="th-tag q">O(log n) depth</span>
+          <span class="th-tag q">QPU hardware</span>
+          <span class="th-tag q">Error correction needed</span>
+        </div>
+      </div>
+
+      <!-- ══ COMPARE ══ -->
+      <div class="th-section" id="th-compare">
+
+        <div class="th-hero">
+          <div class="th-hero-label">Why compare these two approaches?</div>
+          <div class="th-hero-text">
+            Both multipliers produce the same result — the product of two binary numbers. The
+            difference is entirely in <strong>how</strong> they get there. Understanding that
+            difference reveals the fundamental gap between classical sequential computation and
+            quantum parallel computation.
+          </div>
+        </div>
+
+        <div class="th-h2"><span class="th-dot"></span>Side-by-side comparison</div>
+        <div class="th-compare-grid">
+          <div class="th-col">
+            <div class="th-col-head">Classical — Shift-Add</div>
+            <ul>
+              <li>Processes one bit of B per cycle</li>
+              <li>Each cycle depends on the last</li>
+              <li>n cycles for an n-bit input</li>
+              <li>Always gives the exact correct answer</li>
+              <li>Runs on any CPU available today</li>
+              <li>No special hardware required</li>
+              <li>No error correction overhead</li>
+              <li>Performance bottleneck: sequential loop</li>
+            </ul>
+          </div>
+          <div class="th-col">
+            <div class="th-col-head">Quantum — Bloch Model</div>
+            <ul>
+              <li>All bits of B processed simultaneously</li>
+              <li>Circuit layers are independent</li>
+              <li>O(log n) layers for an n-bit input</li>
+              <li>Answer correct with high probability</li>
+              <li>Requires a quantum processor (QPU)</li>
+              <li>Needs hundreds of physical qubits</li>
+              <li>Requires error correction overhead</li>
+              <li>Performance bottleneck: decoherence</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="th-h2"><span class="th-dot"></span>Cycle count at different input sizes</div>
+        <div class="th-example">
+          <div class="th-ex-title">Cycles vs input size</div>
+          <div>n =  <span class="th-hl">4</span>  bits &nbsp;→&nbsp; Classical: <span class="th-hl"> 4</span> cycles &nbsp;|&nbsp; Quantum: <span class="th-hl">~2</span> logical cycles</div>
+          <div>n =  <span class="th-hl">8</span>  bits &nbsp;→&nbsp; Classical: <span class="th-hl"> 8</span> cycles &nbsp;|&nbsp; Quantum: <span class="th-hl">~3</span> logical cycles</div>
+          <div>n = <span class="th-hl">16</span>  bits &nbsp;→&nbsp; Classical: <span class="th-hl">16</span> cycles &nbsp;|&nbsp; Quantum: <span class="th-hl">~4</span> logical cycles</div>
+          <div>n = <span class="th-hl">64</span>  bits &nbsp;→&nbsp; Classical: <span class="th-hl">64</span> cycles &nbsp;|&nbsp; Quantum: <span class="th-hl">~6</span> logical cycles</div>
+          <div>n = <span class="th-hl">256</span> bits &nbsp;→&nbsp; Classical: <span class="th-hl">256</span> cycles &nbsp;|&nbsp; Quantum: <span class="th-hl">~8</span> logical cycles</div>
+        </div>
+
+        <div class="th-h2"><span class="th-dot"></span>The key trade-off</div>
+        <div class="th-cards">
+          <div class="th-card">
+            <div class="th-card-label">Classical strength</div>
+            <div class="th-card-title">Reliability &amp; availability</div>
+            <div class="th-card-body">Classical multipliers are exact, fast enough for virtually all current use cases, and run on hardware that costs pennies. For inputs under a few thousand bits, they are unbeatable in practice.</div>
+          </div>
+          <div class="th-card">
+            <div class="th-card-label">Quantum strength</div>
+            <div class="th-card-title">Scalability at large n</div>
+            <div class="th-card-body">As input sizes grow into thousands or millions of bits — relevant for cryptography and scientific computing — the O(log n) depth of a quantum circuit would make it exponentially faster than any classical approach, if reliable QPUs existed.</div>
+          </div>
+          <div class="th-card">
+            <div class="th-card-label">Classical weakness</div>
+            <div class="th-card-title">Sequential scaling</div>
+            <div class="th-card-body">Every extra bit added to the input adds exactly one more cycle. For cryptographic key sizes (2048+ bits), even optimised classical multipliers are slow — and this is exactly why quantum computing threatens RSA encryption.</div>
+          </div>
+          <div class="th-card">
+            <div class="th-card-label">Quantum weakness</div>
+            <div class="th-card-title">Hardware immaturity</div>
+            <div class="th-card-body">Current quantum computers cannot run a reliable multiplier for inputs larger than a few bits. Decoherence, gate error rates, and qubit connectivity constraints make the physical overhead enormous compared to the theoretical circuit depth.</div>
+          </div>
+        </div>
+
+        <div class="th-divider"></div>
+        <div class="th-note">
+          <strong>Bottom line:</strong> Use classical multiplication for everything today. Study quantum multiplication to understand where computing is heading — especially in cryptography, optimisation, and simulation — and why fault-tolerant quantum processors are one of the most important engineering challenges of this decade.
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function thTab(id, btn) {
+  document.querySelectorAll('.th-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.th-section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('th-' + id).classList.add('active');
+}
+</script>
+</body>
+</html>
